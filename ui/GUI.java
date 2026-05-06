@@ -16,10 +16,14 @@ public class GUI extends JFrame {
 
         setLocationRelativeTo(null);
 
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+
         JTabbedPane tabs = new JTabbedPane();
 
         tabs.addTab("Books", new BooksPanel());
+
         tabs.addTab("Members", new MembersPanel());
+
         tabs.addTab("Borrow Records", new BorrowPanel());
 
         add(tabs);
