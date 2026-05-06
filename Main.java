@@ -1,6 +1,6 @@
-import data.BookData;
 import data.DbConnection;
-import libsystem.Books;
+import data.MemberData;
+import libsystem.Members;
 
 public class Main {
 
@@ -8,16 +8,16 @@ public class Main {
 
         DbConnection.createTables();
 
-        BookData bookData = new BookData();
+        MemberData memberData = new MemberData();
 
-        Books updatedBook = new Books(1, "Advanced Java Programming", "John Smith", "Programming", "Available");
+        Members member = new Members(1, "Alice Johnson", "alice.johnson@stmarys.ac.uk", "Student");
 
-        bookData.updateBook(updatedBook);
+        memberData.addMember(member);
 
-        System.out.println("Search results:");
+        System.out.println("All members:");
 
-        for (Books b : bookData.searchBooks("Java")) {
-            System.out.println(b.getBookId() + " | " + b.getTitle() + " | " + b.getAuthor());
+        for (Members m : memberData.getAllMembers()) {
+            System.out.println(m.getMemberId() + " | " + m.getMemberName() + " | " + m.getEmail());
         }
     }
 }
