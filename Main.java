@@ -1,6 +1,6 @@
+import data.BorrowData;
 import data.DbConnection;
-import data.MemberData;
-import libsystem.Members;
+import libsystem.Borrow;
 
 public class Main {
 
@@ -8,16 +8,32 @@ public class Main {
 
         DbConnection.createTables();
 
-        MemberData memberData = new MemberData();
+        BorrowData borrowData = new BorrowData();
 
-        Members member = new Members(1, "Alice Johnson", "alice.johnson@stmarys.ac.uk", "Student");
+        Borrow record = new Borrow(
+                1,
+                1,
+                1,
+                "2026-05-06",
+                "2026-05-20",
+                "Borrowed"
+        );
 
-        memberData.addMember(member);
+        borrowData.addBorrowRecord(record);
 
-        System.out.println("All members:");
+        System.out.println("All borrow records:");
 
-        for (Members m : memberData.getAllMembers()) {
-            System.out.println(m.getMemberId() + " | " + m.getMemberName() + " | " + m.getEmail());
+        for (Borrow r : borrowData.getAllBorrowRecords()) {
+
+            System.out.println(
+                    r.getRecordId() +
+                    " | Book: " +
+                    r.getBookId() +
+                    " | Member: " +
+                    r.getMemberId() +
+                    " | " +
+                    r.getReturnStatus()
+            );
         }
     }
 }
