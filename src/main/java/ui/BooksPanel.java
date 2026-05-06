@@ -1,10 +1,17 @@
 package ui;
 
+import java.util.List;
+
+import data.BookData;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -22,8 +29,13 @@ public class BooksPanel {
     private TextField searchField;
 
     private TableView<Books> table;
+    private ObservableList<Books> bookList;
+
+    private BookData bookData;
 
     public BooksPanel() {
+
+        bookData = new BookData();
 
         view = new VBox(15);
         view.setStyle("-fx-padding: 20;");
@@ -88,6 +100,23 @@ public class BooksPanel {
 
         table = new TableView<>();
 
+        TableColumn<Books, Integer> idColumn = new TableColumn<>("Book ID");
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("bookId"));
+
+        TableColumn<Books, String> titleColumn = new TableColumn<>("Title");
+        titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
+
+        TableColumn<Books, String> authorColumn = new TableColumn<>("Author");
+        authorColumn.setCellValueFactory(new PropertyValueFactory<>("author"));
+
+        TableColumn<Books, String> categoryColumn = new TableColumn<>("Category");
+        categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
+
+        TableColumn<Books, String> statusColumn = new TableColumn<>("Status");
+        statusColumn.setCellValueFactory(new PropertyValueFactory<>("availabilityStatus"));
+
+        table.getColumns().addAll(idColumn, titleColumn, authorColumn, categoryColumn, statusColumn);
+
         HBox buttonRow = new HBox(15);
 
         Button addButton = new Button("Add");
@@ -98,6 +127,111 @@ public class BooksPanel {
         buttonRow.getChildren().addAll(addButton, updateButton, deleteButton, refreshButton);
 
         view.getChildren().addAll(inputGrid, searchBox, table, buttonRow);
+
+        loadBooks();
+
+        addButton.setOnAction(e -> addBook());
+
+        updateButton.setOnAction(e -> updateBook());
+
+        deleteButton.setOnAction(e -> deleteBook());
+
+        refreshButton.setOnAction(e -> {
+            loadBooks();
+            clearFields();
+            searchField.setText("");
+        });
+
+        table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> fillFieldsFromTable(newSelection));
+    }
+
+    private void loadBooks() {
+
+        List<Books> books = bookData.getAllBooks();
+
+        bookList = FXCollections.observableArrayList(books);
+
+        table.setItems(bookList);
+    }
+
+    private void addBook() {
+
+        Books book = new Books(
+                Integer.parseInt(bookIdField.getText().trim()),
+                titleField.getText().trim(),
+                authorField.getText().trim(),
+                categoryBox.getSelectionModel().getSelectedItem(),
+                statusBox.getSelectionModel().getSelectedItem()
+        );
+
+        bookData.addBook(book);
+
+        loadBooks();
+
+        clearFields();
+    }
+
+    private void updateBook() {
+
+        Books book = new Books(
+                Integer.parseInt(bookIdField.getText().trim()),
+                titleField.getText().trim(),
+                authorField.getText().trim(),
+                categoryBox.getSelectionModel().getSelectedItem(),
+                statusBox.getSelectionModel().getSelectedItem()
+        );
+
+        bookData.updateBook(book);
+
+        loadBooks();
+
+        clearFields();
+    }
+
+    private void deleteBook() {
+
+        int bookId = Integer.parseInt(bookIdField.getText().trim());
+
+        bookData.deleteBook(bookId);
+
+        loadBooks();
+
+        clearFields();
+    }
+
+    private void fillFieldsFromTable(Books book) {
+
+        if (book != null) {
+
+            bookIdField.setText(String.valueOf(book.getBookId()));
+
+            titleField.setText(book.getTitle());
+
+            authorField.setText(book.getAuthor());
+
+            categoryBox.getSelectionModel().select(book.getCategory());
+
+            statusBox.getSelectionModel().select(book.getAvailabilityStatus());
+
+            bookIdField.setEditable(false);
+        }
+    }
+
+    private void clearFields() {
+
+        bookIdField.setText("");
+
+        titleField.setText("");
+
+        authorField.setText("");
+
+        categoryBox.getSelectionModel().selectFirst();
+
+        statusBox.getSelectionModel().selectFirst();
+
+        bookIdField.setEditable(true);
+
+        table.getSelectionModel().clearSelection();
     }
 
     public VBox getView() {
