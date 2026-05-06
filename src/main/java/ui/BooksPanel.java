@@ -5,6 +5,7 @@ import java.util.List;
 import data.BookData;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -142,6 +143,10 @@ public class BooksPanel {
             searchField.setText("");
         });
 
+        searchButton.setOnAction(e -> searchBooks());
+
+        searchField.setOnAction(e -> searchBooks());
+
         table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> fillFieldsFromTable(newSelection));
     }
 
@@ -154,49 +159,179 @@ public class BooksPanel {
         table.setItems(bookList);
     }
 
+    private boolean validateBookForm() {
+
+        if (bookIdField.getText().trim().isEmpty()) {
+
+            showError("Please enter a Book ID");
+
+            return false;
+        }
+
+        try {
+
+            Integer.parseInt(bookIdField.getText().trim());
+
+        } catch (Exception e) {
+
+            showError("Book ID must be numeric");
+
+            return false;
+        }
+
+        if (titleField.getText().trim().isEmpty()) {
+
+            showError("Please enter a title");
+
+            return false;
+        }
+
+        if (authorField.getText().trim().isEmpty()) {
+
+            showError("Please enter an author");
+
+            return false;
+        }
+
+        if (categoryBox.getSelectionModel().getSelectedIndex() == 0) {
+
+            showError("Please select a valid category");
+
+            return false;
+        }
+
+        if (statusBox.getSelectionModel().getSelectedIndex() == 0) {
+
+            showError("Please select a valid status");
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean bookIdExists(int bookId) {
+
+        List<Books> books = bookData.getAllBooks();
+
+        for (Books book : books) {
+
+            if (book.getBookId() == bookId) {
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private void addBook() {
 
-        Books book = new Books(
-                Integer.parseInt(bookIdField.getText().trim()),
-                titleField.getText().trim(),
-                authorField.getText().trim(),
-                categoryBox.getSelectionModel().getSelectedItem(),
-                statusBox.getSelectionModel().getSelectedItem()
-        );
+        if (!validateBookForm()) {
 
-        bookData.addBook(book);
+            return;
+        }
 
-        loadBooks();
+        try {
 
-        clearFields();
+            int bookId = Integer.parseInt(bookIdField.getText().trim());
+
+            if (bookIdExists(bookId)) {
+
+                showError("Book ID already exists");
+
+                return;
+            }
+
+            Books book = new Books(
+                    bookId,
+                    titleField.getText().trim(),
+                    authorField.getText().trim(),
+                    categoryBox.getSelectionModel().getSelectedItem(),
+                    statusBox.getSelectionModel().getSelectedItem()
+            );
+
+            bookData.addBook(book);
+
+            loadBooks();
+
+            clearFields();
+
+            showInfo("Book added successfully");
+
+        } catch (Exception e) {
+
+            showError("Invalid input");
+        }
     }
 
     private void updateBook() {
 
-        Books book = new Books(
-                Integer.parseInt(bookIdField.getText().trim()),
-                titleField.getText().trim(),
-                authorField.getText().trim(),
-                categoryBox.getSelectionModel().getSelectedItem(),
-                statusBox.getSelectionModel().getSelectedItem()
-        );
+        if (!validateBookForm()) {
 
-        bookData.updateBook(book);
+            return;
+        }
 
-        loadBooks();
+        try {
 
-        clearFields();
+            Books book = new Books(
+                    Integer.parseInt(bookIdField.getText().trim()),
+                    titleField.getText().trim(),
+                    authorField.getText().trim(),
+                    categoryBox.getSelectionModel().getSelectedItem(),
+                    statusBox.getSelectionModel().getSelectedItem()
+            );
+
+            bookData.updateBook(book);
+
+            loadBooks();
+
+            clearFields();
+
+            showInfo("Book updated successfully");
+
+        } catch (Exception e) {
+
+            showError("Invalid input");
+        }
     }
 
     private void deleteBook() {
 
-        int bookId = Integer.parseInt(bookIdField.getText().trim());
+        try {
 
-        bookData.deleteBook(bookId);
+            int bookId = Integer.parseInt(bookIdField.getText().trim());
 
-        loadBooks();
+            bookData.deleteBook(bookId);
 
-        clearFields();
+            loadBooks();
+
+            clearFields();
+
+            showInfo("Book deleted successfully");
+
+        } catch (Exception e) {
+
+            showError("Select a valid book");
+        }
+    }
+
+    private void searchBooks() {
+
+        String keyword = searchField.getText().trim();
+
+        if (keyword.isEmpty()) {
+
+            loadBooks();
+
+            return;
+        }
+
+        List<Books> books = bookData.searchBooks(keyword);
+
+        bookList = FXCollections.observableArrayList(books);
+
+        table.setItems(bookList);
     }
 
     private void fillFieldsFromTable(Books book) {
@@ -232,6 +367,32 @@ public class BooksPanel {
         bookIdField.setEditable(true);
 
         table.getSelectionModel().clearSelection();
+    }
+
+    private void showError(String message) {
+
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+
+        alert.setTitle("Error");
+
+        alert.setHeaderText(null);
+
+        alert.setContentText(message);
+
+        alert.showAndWait();
+    }
+
+    private void showInfo(String message) {
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
+        alert.setTitle("Information");
+
+        alert.setHeaderText(null);
+
+        alert.setContentText(message);
+
+        alert.showAndWait();
     }
 
     public VBox getView() {
