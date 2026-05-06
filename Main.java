@@ -10,11 +10,13 @@ public class Main {
 
         BookData bookData = new BookData();
 
-        Books book = new Books(1, "Introduction to Java", "John Smith", "Programming", "Available");
+        Books updatedBook = new Books(1, "Advanced Java Programming", "John Smith", "Programming", "Available");
 
-        bookData.addBook(book);
+        bookData.updateBook(updatedBook);
 
-        for (Books b : bookData.getAllBooks()) {
+        System.out.println("Search results:");
+
+        for (Books b : bookData.searchBooks("Java")) {
             System.out.println(b.getBookId() + " | " + b.getTitle() + " | " + b.getAuthor());
         }
     }
