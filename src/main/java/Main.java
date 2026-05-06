@@ -1,19 +1,23 @@
+import data.DbConnection;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import ui.GUI;
 
 public class Main extends Application {
 
     @Override
     public void start(Stage stage) {
 
-        Label label = new Label("JavaFX is working");
+        DbConnection.createTables();
 
-        Scene scene = new Scene(label, 600, 400);
+        GUI gui = new GUI();
+
+        Scene scene = new Scene(gui.getMainView(), 1200, 750);
 
         stage.setTitle("St Mary's Digital Library System");
         stage.setScene(scene);
+        stage.setMaximized(true);
         stage.show();
     }
 

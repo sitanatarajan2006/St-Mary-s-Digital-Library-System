@@ -1,42 +1,40 @@
 package ui;
 
-import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.layout.BorderPane;
 
-public class GUI extends JFrame {
+public class GUI {
+
+    private BorderPane mainView;
 
     public GUI() {
 
-        setTitle("St Mary's Digital Library System");
+        mainView = new BorderPane();
 
-        setSize(1000, 650);
+        TabPane tabPane = new TabPane();
 
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        Tab booksTab = new Tab("Books");
+        booksTab.setContent(new BooksPanel().getView());
+        booksTab.setClosable(false);
 
-        setLocationRelativeTo(null);
+        Tab membersTab = new Tab("Members");
+        membersTab.setContent(new MembersPanel().getView());
+        membersTab.setClosable(false);
 
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        Tab borrowTab = new Tab("Borrow Records");
+        borrowTab.setContent(new BorrowPanel().getView());
+        borrowTab.setClosable(false);
 
-        JTabbedPane tabs = new JTabbedPane();
+        tabPane.getTabs().add(booksTab);
+        tabPane.getTabs().add(membersTab);
+        tabPane.getTabs().add(borrowTab);
 
-        tabs.addTab("Books", new BooksPanel());
-
-        tabs.addTab("Members", new MembersPanel());
-
-        tabs.addTab("Borrow Records", new BorrowPanel());
-
-        add(tabs);
+        mainView.setCenter(tabPane);
     }
 
-    public static void launch() {
+    public BorderPane getMainView() {
 
-        SwingUtilities.invokeLater(new Runnable() {
-
-            public void run() {
-
-                new GUI().setVisible(true);
-            }
-        });
+        return mainView;
     }
 }
