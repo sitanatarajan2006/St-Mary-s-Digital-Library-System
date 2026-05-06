@@ -1,0 +1,16 @@
+# Maven build output
+target/
+
+# Local JavaFX SDK (not needed - Maven downloads JavaFX automatically)
+javafx-sdk*/
+
+# IDE files
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+
+# OS files
+Thumbs.db
+.DS_Store
