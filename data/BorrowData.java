@@ -1,13 +1,14 @@
 package data;
 
-import libsystem.Borrow;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import libsystem.Borrow;
 
 public class BorrowData {
 
     public void addBorrowRecord(Borrow record) {
+
         String sql = "INSERT INTO borrow_records (record_id, book_id, member_id, borrow_date, due_date, return_status) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DbConnection.connect();
@@ -145,6 +146,74 @@ public class BorrowData {
 
         } catch (Exception e) {
             System.out.println("Error searching borrow records: " + e.getMessage());
+        }
+
+        return records;
+    }
+
+    public List<Borrow> filterByDateRange(String startDate, String endDate) {
+
+        List<Borrow> records = new ArrayList<>();
+
+        String sql = "SELECT * FROM borrow_records WHERE borrow_date BETWEEN ? AND ?";
+
+        try (Connection conn = DbConnection.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, startDate);
+            pstmt.setString(2, endDate);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+
+                Borrow record = new Borrow(
+                        rs.getInt("record_id"),
+                        rs.getInt("book_id"),
+                        rs.getInt("member_id"),
+                        rs.getString("borrow_date"),
+                        rs.getString("due_date"),
+                        rs.getString("return_status")
+                );
+
+                records.add(record);
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error filtering borrow records: " + e.getMessage());
+        }
+
+        return records;
+    }
+
+    public List<Borrow> getOverdueRecords() {
+
+        List<Borrow> records = new ArrayList<>();
+
+        String sql = "SELECT * FROM borrow_records " +
+                "WHERE due_date < date('now') " +
+                "AND return_status != 'Returned'";
+
+        try (Connection conn = DbConnection.connect();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+
+                Borrow record = new Borrow(
+                        rs.getInt("record_id"),
+                        rs.getInt("book_id"),
+                        rs.getInt("member_id"),
+                        rs.getString("borrow_date"),
+                        rs.getString("due_date"),
+                        rs.getString("return_status")
+                );
+
+                records.add(record);
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error loading overdue records: " + e.getMessage());
         }
 
         return records;
