@@ -7,6 +7,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -15,6 +16,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import libsystem.Books;
 
@@ -46,8 +48,13 @@ public class BooksPanel {
         inputGrid.setVgap(10);
 
         bookIdField = new TextField();
+        bookIdField.setPromptText("Numeric ID");
+
         titleField = new TextField();
+        titleField.setPromptText("Book title");
+
         authorField = new TextField();
+        authorField.setPromptText("Author name");
 
         categoryBox = new ComboBox<>();
         categoryBox.getItems().addAll(
@@ -62,6 +69,7 @@ public class BooksPanel {
                 "Other"
         );
         categoryBox.getSelectionModel().selectFirst();
+        categoryBox.setMaxWidth(Double.MAX_VALUE);
 
         statusBox = new ComboBox<>();
         statusBox.getItems().addAll(
@@ -72,6 +80,7 @@ public class BooksPanel {
                 "Overdue"
         );
         statusBox.getSelectionModel().selectFirst();
+        statusBox.setMaxWidth(Double.MAX_VALUE);
 
         inputGrid.add(new Label("Book ID"), 0, 0);
         inputGrid.add(new Label("Title"), 1, 0);
@@ -86,20 +95,25 @@ public class BooksPanel {
         inputGrid.add(statusBox, 4, 1);
 
         VBox searchBox = new VBox(8);
+        searchBox.setStyle("-fx-padding: 10 0 10 0;");
 
         Label searchLabel = new Label("Search Books");
         Label searchHint = new Label("Search by ID, title, author, or category");
 
         searchField = new TextField();
+        searchField.setPromptText("Enter search keyword");
 
         Button searchButton = new Button("Search");
+        searchButton.setMinWidth(100);
 
         HBox searchRow = new HBox(10);
         searchRow.getChildren().addAll(searchField, searchButton);
+        HBox.setHgrow(searchField, Priority.ALWAYS);
 
         searchBox.getChildren().addAll(searchLabel, searchHint, searchRow);
 
         table = new TableView<>();
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
         TableColumn<Books, Integer> idColumn = new TableColumn<>("Book ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("bookId"));
@@ -118,12 +132,20 @@ public class BooksPanel {
 
         table.getColumns().addAll(idColumn, titleColumn, authorColumn, categoryColumn, statusColumn);
 
+        VBox.setVgrow(table, Priority.ALWAYS);
+
         HBox buttonRow = new HBox(15);
+        buttonRow.setStyle("-fx-padding: 10 0 0 0;");
 
         Button addButton = new Button("Add");
         Button updateButton = new Button("Update");
         Button deleteButton = new Button("Delete");
         Button refreshButton = new Button("Refresh");
+
+        addButton.setMinWidth(100);
+        updateButton.setMinWidth(100);
+        deleteButton.setMinWidth(100);
+        refreshButton.setMinWidth(100);
 
         buttonRow.getChildren().addAll(addButton, updateButton, deleteButton, refreshButton);
 
@@ -297,6 +319,26 @@ public class BooksPanel {
     }
 
     private void deleteBook() {
+
+        if (bookIdField.getText().trim().isEmpty()) {
+
+            showError("Select a valid book");
+
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+
+        confirm.setTitle("Confirm Delete");
+
+        confirm.setHeaderText(null);
+
+        confirm.setContentText("Delete selected book?");
+
+        if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) {
+
+            return;
+        }
 
         try {
 
