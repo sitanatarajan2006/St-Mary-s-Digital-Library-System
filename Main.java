@@ -1,21 +1,21 @@
+import data.BookData;
 import data.DbConnection;
-import java.sql.Connection;
+import libsystem.Books;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        try (Connection conn = DbConnection.connect()) {
+        DbConnection.createTables();
 
-            if (conn != null) {
-                System.out.println("Connected to database successfully");
-                DbConnection.createTables();
-            } else {
-                System.out.println("Connection failed");
-            }
+        BookData bookData = new BookData();
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        Books book = new Books(1, "Introduction to Java", "John Smith", "Programming", "Available");
+
+        bookData.addBook(book);
+
+        for (Books b : bookData.getAllBooks()) {
+            System.out.println(b.getBookId() + " | " + b.getTitle() + " | " + b.getAuthor());
         }
     }
 }
